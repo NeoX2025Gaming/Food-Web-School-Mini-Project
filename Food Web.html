@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tropical Rainforest Food Web</title>
+  <style>
+    svg {
+      border: 1px solid #ccc;
+    }
+    text {
+      font-size: 14px;
+      text-anchor: middle;
+    }
+    .link {
+      stroke: #000;
+      stroke-width: 2;
+      marker-end: url(#arrow);
+    }
+    .label {
+      font-weight: bold;
+      font-size: 20px;
+      text-anchor: start;
+    }
+    .tertiary-label { fill: red; }
+    .secondary-label { fill: orange; }
+    .primary-label { fill: #cccc00; }
+    .producer-label { fill: green; }
+    .decomp-title { fill: cyan; font-weight: bold; font-size: 18px; text-anchor: start; }
+    .decomp-item { fill: black; font-size: 14px; text-anchor: start; }
+    .class-title { font-weight: bold; font-size: 18px; text-anchor: start; }
+    .carn-title { fill: red; }
+    .herb-title { fill: green; }
+    .omni-title { fill: #cccc00; }
+    .class-item { fill: black; font-size: 14px; text-anchor: start; }
+
+    .sci-title { fill: purple; font-weight: bold; font-size: 18px; text-anchor: start; }
+    .sci-item { fill: black; font-size: 14px; text-anchor: start; }
+  </style>
+</head>
+<body>
+
+<svg id="foodweb" xmlns="http://www.w3.org/2000/svg" width="1600" height="1200">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
+      markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#000"/>
+    </marker>
+  </defs>
+</svg>
+
+<script>
+  const svg = document.getElementById('foodweb');
+
+  const Y = {
+    tertiary: 100,
+    secondary: 200,
+    primary: 400,
+    producer: 500
+  };
+
+  const nodes = {
+    tertiary: [
+      {id:'crowned',   x:490,  label:'Crowned Eagle'},
+      {id:'harpy',     x:620,  label:'Harpy Eagle'},
+      {id:'jaguar',    x:730,  label:'Jaguar'},
+      {id:'anaconda',  x:850,  label:'Green Anaconda'}
+    ],
+    secondary: [
+      {id:'frog',      x:470,  label:'Frog'},
+      {id:'boa',       x:350,  label:'Boa Constrictor'},
+      {id:'toucan',    x:760,  label:'Toucan'},
+      {id:'iguana',    x:590,  label:'Iguana'},
+      {id:'antbird',   x:870,  label:'Antbird'},
+      {id:'vampire',   x:960,  label:'Vampire Bat'}
+    ],
+    primary: [
+      {id:'howler',      x:300,  label:'Howler Monkey'},
+      {id:'leafcutter',  x:430,  label:'Leafcutter Ant'},
+      {id:'agouti',      x:540,  label:'Agouti'},
+      {id:'fruitbat',    x:630,  label:'Fruit Bat'},
+      {id:'macaw',       x:730,  label:'Macaw'},
+      {id:'sloth',       x:830,  label:'Sloth'},
+      {id:'caterpillar', x:930,  label:'Caterpillar'},
+      {id:'tapir',       x:1030, label:'Tapir'}
+    ],
+    producer: [
+      {id:'kapok',      x:400,  label:'Kapok Tree'},
+      {id:'heliconia',  x:520,  label:'Heliconia Shrub'},
+      {id:'bromeliads', x:640,  label:'Bromeliads'},
+      {id:'orchids',    x:750,  label:'Orchids'},
+      {id:'fern',       x:850,  label:'Ferns'},
+      {id:'liana',      x:960,  label:'Liana Vines'}
+    ]
+  };
+
+  const links = [
+    ['kapok','howler'], ['heliconia','howler'],
+    ['kapok','leafcutter'], ['heliconia','leafcutter'],
+    ['kapok','agouti'], ['bromeliads','agouti'],
+    ['kapok','fruitbat'], ['bromeliads','fruitbat'],
+    ['heliconia','macaw'], ['orchids','macaw'],
+    ['orchids','sloth'], ['liana','sloth'],
+    ['fern','caterpillar'], ['liana','caterpillar'],
+    ['fern','tapir'], ['liana','tapir'],
+    ['howler','boa'], ['agouti','boa'], ['sloth','boa'],
+    ['leafcutter','frog'], ['caterpillar','frog'],
+    ['leafcutter','toucan'], ['caterpillar','toucan'],
+    ['leafcutter','iguana'], ['caterpillar','iguana'],
+    ['leafcutter','antbird'], ['caterpillar','antbird'],
+    ['tapir','vampire'], ['howler','vampire'],
+    ['howler','crowned'], ['agouti','crowned'],
+    ['howler','harpy'], ['sloth','harpy'],
+    ['macaw','harpy'], ['tapir','jaguar'],
+    ['agouti','jaguar'], ['tapir','anaconda'],
+    ['howler','anaconda']
+  ];
+
+  function createNodes(level, y) {
+    nodes[level].forEach(node => {
+      const txt = document.createElementNS(svg.namespaceURI, 'text');
+      txt.setAttribute('id', node.id);
+      txt.setAttribute('x', node.x);
+      txt.setAttribute('y', y);
+      txt.textContent = node.label;
+      svg.appendChild(txt);
+    });
+  }
+
+  createNodes('tertiary',   Y.tertiary);
+  createNodes('secondary',  Y.secondary);
+  createNodes('primary',    Y.primary);
+  createNodes('producer',   Y.producer);
+
+  function drawLinks() {
+    links.forEach(([fromId, toId]) => {
+      const fromEl = document.getElementById(fromId);
+      const toEl   = document.getElementById(toId);
+      if (!fromEl || !toEl) return;
+      const fromX = parseFloat(fromEl.getAttribute('x'));
+      const fromY = parseFloat(fromEl.getAttribute('y'));
+      const toX   = parseFloat(toEl.getAttribute('x'));
+      const toY   = parseFloat(toEl.getAttribute('y'));
+      const y1 = fromY - 15;
+      const y2 = toY + 10;
+      const line = document.createElementNS(svg.namespaceURI, 'line');
+      line.setAttribute('class', 'link');
+      line.setAttribute('x1', fromX);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', toX);
+      line.setAttribute('y2', y2);
+      svg.appendChild(line);
+    });
+  }
+
+  function drawLabels() {
+    const labelData = [
+      {text: 'Tertiary Consumers',  y: Y.tertiary,   class: 'tertiary-label'},
+      {text: 'Secondary Consumers',  y: Y.secondary,  class: 'secondary-label'},
+      {text: 'Primary Consumers',    y: Y.primary,    class: 'primary-label'},
+      {text: 'Producers',            y: Y.producer,   class: 'producer-label'}
+    ];
+    labelData.forEach(({text, y, class: className}) => {
+      const lbl = document.createElementNS(svg.namespaceURI, 'text');
+      lbl.setAttribute('x', 1100);
+      lbl.setAttribute('y', y);
+      lbl.setAttribute('class', `label ${className}`);
+      lbl.textContent = text;
+      svg.appendChild(lbl);
+    });
+  }
+
+  function drawDecomposers() {
+    const decompTitle = document.createElementNS(svg.namespaceURI, 'text');
+    decompTitle.setAttribute('x', 50);
+    decompTitle.setAttribute('y', Y.primary - 30);
+    decompTitle.setAttribute('class', 'decomp-title');
+    decompTitle.textContent = 'Decomposers';
+    svg.appendChild(decompTitle);
+
+    const items = [
+      'Leaf Litter Fungi',  
+      'Wood-Decaying Fungi',
+      'Bacteria',
+      'Termites',
+      'Millipedes',
+      'Springtails'
+    ];
+
+    items.forEach((line, i) => {
+      const txt = document.createElementNS(svg.namespaceURI, 'text');
+      txt.setAttribute('x', 50);
+      txt.setAttribute('y', Y.primary + i * 25);
+      txt.setAttribute('class', 'decomp-item');
+      txt.textContent = line;
+      svg.appendChild(txt);
+    });
+  }
+
+  function drawClassificationLists() {
+    const startY = 100;
+    const colX = { carn: 50, herb: 170, omni: 290 };
+
+    const titles = [
+      { text: 'Carnivorous', x: colX.carn, y: startY, class: 'carn-title' },
+      { text: 'Herbivorous', x: colX.herb, y: startY, class: 'herb-title' },
+      { text: 'Omnivorous',  x: colX.omni, y: startY, class: 'omni-title' }
+    ];
+
+    titles.forEach(({ text, x, y, class: className }) => {
+      const title = document.createElementNS(svg.namespaceURI, 'text');
+      title.setAttribute('x', x);
+      title.setAttribute('y', y);
+      title.setAttribute('class', `class-title ${className}`);
+      title.textContent = text;
+      svg.appendChild(title);
+    });
+
+    const carnList = [
+      'Crowned Eagle',
+      'Harpy Eagle',
+      'Jaguar',
+      'Green Anaconda',
+      'Frog',
+      'Boa Constrictor',
+      'Antbird',
+      'Vampire Bat'
+    ];
+
+    const herbList = [
+      'Iguana',
+      'Howler Monkey',
+      'Leafcutter Ant',
+      'Agouti',
+      'Fruit Bat',
+      'Macaw',
+      'Sloth',
+      'Caterpillar',
+      'Tapir'
+    ];
+
+    const omniList = [
+      'Toucan'
+    ];
+
+    carnList.forEach((line, i) => {
+      const txt = document.createElementNS(svg.namespaceURI, 'text');
+      txt.setAttribute('x', colX.carn);
+      txt.setAttribute('y', startY + 25 + i * 20);
+      txt.setAttribute('class', 'class-item');
+      txt.textContent = line;
+      svg.appendChild(txt);
+    });
+
+    herbList.forEach((line, i) => {
+      const txt = document.createElementNS(svg.namespaceURI, 'text');
+      txt.setAttribute('x', colX.herb);
+      txt.setAttribute('y', startY + 25 + i * 20);
+      txt.setAttribute('class', 'class-item');
+      txt.textContent = line;
+      svg.appendChild(txt);
+    });
+
+    omniList.forEach((line, i) => {
+      const txt = document.createElementNS(svg.namespaceURI, 'text');
+      txt.setAttribute('x', colX.omni);
+      txt.setAttribute('y', startY + 25 + i * 20);
+      txt.setAttribute('class', 'class-item');
+      txt.textContent = line;
+      svg.appendChild(txt);
+    });
+  }
+
+  function drawGlossary() {
+    const startY = 600;
+    const colX = { col1: 50, col2: 350, col3: 650, col4: 950 };
+
+    const title = document.createElementNS(svg.namespaceURI, 'text');
+    title.setAttribute('x', colX.col2 + 120);
+    title.setAttribute('y', startY - 30);
+    title.setAttribute('class', 'sci-title');
+    title.textContent = 'Common Name (Scientific Name) Glossary';
+    svg.appendChild(title);
+
+    const items = [
+      'Crowned Eagle (Stephanoaetus coronatus)',
+      'Harpy Eagle (Harpia harpyja)',
+      'Jaguar (Panthera onca)',
+      'Green Anaconda (Eunectes murinus)',
+      'Frog (Agalychnis callidryas)',
+      'Boa Constrictor (Boa constrictor)',
+      'Toucan (Ramphastos tucanus)',
+      'Iguana (Iguana iguana)',
+      'Antbird (Thamnophilus doliatus)',
+      'Vampire Bat (Desmodus rotundus)',
+      'Howler Monkey (Alouatta palliata)',
+      'Leafcutter Ant (Atta cephalotes)',
+      'Agouti (Dasyprocta punctata)',
+      'Fruit Bat (Artibeus lituratus)',
+      'Macaw (Ara macao)',
+      'Sloth (Bradypus variegatus)',
+      'Caterpillar (Morpho menelaus)',
+      'Tapir (Tapirus terrestris)',
+      'Kapok Tree (Ceiba pentandra)',
+      'Heliconia Shrub (Heliconia spp.)',
+      'Bromeliads (Bromeliaceae family)',
+      'Orchids (Orchidaceae family)',
+      'Ferns (Various species)',
+      'Liana Vines (Various species)',
+      'Leaf Litter Fungi (Marasmius haematocephalus)',
+      'Wood-Decaying Fungi (Pleurotus ostreatus)',
+      'Bacteria (Bacillus subtilis)',
+      'Termites (Nasutitermes corniger)',
+      'Millipedes (Rhinocricus padbergi)',
+      'Springtails (Dicyrtomina ornata)'
+    ];
+
+    items.forEach((line, i) => {
+      const colIndex = Math.floor(i / 8);
+      const x = colIndex === 0 ? colX.col1 : colIndex === 1 ? colX.col2 : colIndex === 2 ? colX.col3 : colX.col4;
+      const y  = startY + (i % 8) * 20;
+      const txt = document.createElementNS(svg.namespaceURI, 'text');
+      txt.setAttribute('x', x);
+      txt.setAttribute('y', y);
+      txt.setAttribute('class', 'sci-item');
+      txt.textContent = line;
+      svg.appendChild(txt);
+    });
+  }
+
+  drawLinks();
+  drawLabels();
+  drawDecomposers();
+  drawGlossary();
+  drawClassificationLists();
+</script>
+
+</body>
+</html>
+
