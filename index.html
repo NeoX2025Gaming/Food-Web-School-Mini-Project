@@ -68,8 +68,8 @@
     secondary: [
       {id:'frog',      x:470,  label:'Frog'},
       {id:'boa',       x:350,  label:'Boa Constrictor'},
-      {id:'toucan',    x:760,  label:'Toucan'},
-      {id:'iguana',    x:590,  label:'Iguana'},
+      {id:'toucan',    x:740,  label:'Toucan'},
+      {id:'iguana',    x:580,  label:'Iguana'},
       {id:'antbird',   x:870,  label:'Antbird'},
       {id:'vampire',   x:960,  label:'Vampire Bat'}
     ],
@@ -112,7 +112,12 @@
     ['howler','harpy'], ['sloth','harpy'],
     ['macaw','harpy'], ['tapir','jaguar'],
     ['agouti','jaguar'], ['tapir','anaconda'],
-    ['howler','anaconda']
+    ['howler','anaconda'], ['frog', 'harpy'],
+    ['frog', 'crowned'], ['boa', 'jaguar'],
+    ['iguana', 'harpy'], ['antbird', 'crowned'],
+    ['vampire', 'anaconda'], ['toucan', 'harpy'],
+    ['fruitbat', 'harpy'], ['fruitbat', 'crowned'],
+    ['fruitbat', 'anaconda']
   ];
 
   function createNodes(level, y) {
@@ -140,13 +145,20 @@
       const fromY = parseFloat(fromEl.getAttribute('y'));
       const toX   = parseFloat(toEl.getAttribute('x'));
       const toY   = parseFloat(toEl.getAttribute('y'));
+      const dx = toX - fromX;
+      const dy = (toY + 10) - (fromY - 15);
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const unitX = dx / length;
+      const unitY = dy / length;
+      const x1 = fromX;
       const y1 = fromY - 15;
-      const y2 = toY + 10;
+      const x2 = toX - unitX * 5;
+      const y2 = toY + 10 - unitY * 5;
       const line = document.createElementNS(svg.namespaceURI, 'line');
       line.setAttribute('class', 'link');
-      line.setAttribute('x1', fromX);
+      line.setAttribute('x1', x1);
       line.setAttribute('y1', y1);
-      line.setAttribute('x2', toX);
+      line.setAttribute('x2', x2);
       line.setAttribute('y2', y2);
       svg.appendChild(line);
     });
@@ -336,4 +348,3 @@
 
 </body>
 </html>
-
